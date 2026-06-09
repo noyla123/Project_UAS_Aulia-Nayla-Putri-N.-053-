@@ -10,13 +10,15 @@ import json
 application = Flask(__name__)
 application.secret_key = 'pld2026rahasia'
 
-application.config['MAIL_SERVER'] = 'smtp.gmail.com'
-application.config['MAIL_PORT'] = 587
-application.config['MAIL_USE_TLS'] = True
+import os
+
+application.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+application.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
+application.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() == 'true'
 application.config['MAIL_USE_SSL'] = False
-application.config['MAIL_USERNAME'] = 'aestetoqnoyla@gmail.com'
-application.config['MAIL_PASSWORD'] = 'xnqbscmhqvbsmrtk'
-application.config['MAIL_DEFAULT_SENDER'] = 'aestetoqnoyla@gmail.com'
+application.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+application.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+application.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 application.config['MAIL_TIMEOUT'] = 30
 
 mail = Mail(application)
