@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pembuatan Sertifikat PLD 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background-image: url('/static/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            padding: 40px 20px;
+        }
+
+        .card {
+            background: rgba(255, 230, 240, 0.22);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 18px;
+            padding: 44px 40px;
+            width: 100%;
+            max-width: 700px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 30px;
+            color: #7a1a40;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 12.5px;
+            color: #99355a;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+
+        thead th {
+            font-size: 11px;
+            font-weight: 600;
+            color: #99355a;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            text-align: left;
+        }
+
+        tbody td {
+            padding: 8px 6px;
+        }
+
+        tbody td input {
+            background: rgba(255,255,255,0.75);
+            border: 1.5px solid #f4b8cc;
+            color: #7a1a40;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            padding: 10px 12px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        tbody td input:focus {
+            border-color: rgba(255,255,255,0.8);
+            background: #ffffff;
+        }
+
+        tbody td input::placeholder {
+            color: #e8a0b8;
+        }
+
+        .btn-hapus {
+            background: rgba(255,100,130,0.3);
+            border: 1px solid rgba(255,100,130,0.5);
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+
+        .btn-hapus:hover {
+            background: rgba(255,100,130,0.5);
+        }
+
+        .btn-tambah {
+            width: 100%;
+            padding: 12px;
+            background: #ffffff;
+            border: 1.5px dashed #d4537e;
+            border-radius: 10px;
+            color: #99355a;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-tambah:hover {
+            background: #fff;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #99355a);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            transition: background 0 s;
+        }
+
+        .btn-submit:hover { background: #d4537e; }
+
+        .jumlah {
+            font-size: 12px;
+            color: #99355a;
+            text-align: right;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Sertifikat Program Leadership Development 2026</h1>
+        <p class="subtitle">Masukkan data peserta dan submit data dibawah ini!</p>
+
+        <form method="POST" id="mainForm">
+            <input type="hidden" name="mode" value="manual_multi">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Nama Peserta</th>
+                        <th>Email</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="tabel-peserta">
+                    <tr>
+                        <td style="color:#99355a; font-size:13px; padding:8px 6px; text-align:center;">1</td>
+                        <td><input type="text" name="nama[]" placeholder="cth: Aulia Nayla Putri N." required></td>
+                        <td><input type="email" name="email[]" placeholder="cth: aestetoq@gmail.com" required></td>
+                        <td><button type="button" class="btn-hapus" onclick="hapusBaris(this)">✕</button></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p class="jumlah" id="jumlah-peserta">1 peserta</p>
+
+            <button type="button" class="btn-tambah" onclick="tambahBaris()">
+                ➕ Tambah Peserta
+            </button>
+
+            <button type="submit" class="btn-submit">
+                Submit Data
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function tambahBaris() {
+            const tbody = document.getElementById('tabel-peserta');
+            const jumlah = tbody.rows.length + 1;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color:#99355a; font-size:13px; padding:8px 6px; text-align:center;">${jumlah}</td>
+                <td><input type="text" name="nama[]" placeholder="cth: Aulia Nayla Putri N." required></td>
+                <td><input type="email" name="email[]" placeholder="cth: aestetoq@gmail.com" required></td>
+                <td><button type="button" class="btn-hapus" onclick="hapusBaris(this)">✕</button></td>
+            `;
+            tbody.appendChild(tr);
+            updateNomor();
+        }
+
+        function hapusBaris(btn) {
+            const tbody = document.getElementById('tabel-peserta');
+            if (tbody.rows.length === 1) return;
+            btn.closest('tr').remove();
+            updateNomor();
+        }
+
+        function updateNomor() {
+            const rows = document.querySelectorAll('#tabel-peserta tr');
+            rows.forEach((row, i) => {
+                row.cells[0].textContent = i + 1;
+            });
+            const jumlah = rows.length;
+            document.getElementById('jumlah-peserta').textContent =
+                jumlah + (jumlah === 1 ? ' peserta' : ' peserta');
+        }
+    </script>
+</body>
+</html>
