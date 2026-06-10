@@ -6,7 +6,6 @@ import hashlib
 import qrcode
 import os
 import json
-import resend
 from functools import wraps
 
 application = Flask(__name__)
@@ -15,6 +14,18 @@ application.secret_key = 'pld2026rahasia'
 # Kredensial admin
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'pld2026'
+
+# Konfigurasi Gmail SMTP
+application.config['MAIL_SERVER'] = 'smtp.gmail.com'
+application.config['MAIL_PORT'] = 587
+application.config['MAIL_USE_TLS'] = True
+application.config['MAIL_USE_SSL'] = False
+application.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+application.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+application.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
+application.config['MAIL_TIMEOUT'] = 30
+
+mail = Mail(application)
 
 # File penyimpanan hash
 HASH_FILE = 'data/hashes.json'
@@ -82,43 +93,36 @@ def buat_sertifikat(nama):
     return path_png, path_pdf, hash_pdf, path_qr
 
 def kirim_email(nama, email, path_pdf, hash_pdf, path_qr):
-    with open(path_pdf, "rb") as f:
-        pdf_data = f.read()
-
-    with open(path_qr, "rb") as f:
-        qr_data = f.read()
-
-    resend.api_key = os.environ.get('RESEND_API_KEY')
     verifikasi_url = os.environ.get('APP_URL', 'http://localhost:5000') + '/verifikasi'
-
-    params = {
-        "from": os.environ.get('MAIL_FROM', 'onboarding@resend.dev'),
-        "to": [os.environ.get('ADMIN_EMAIL', email)],
-        "subject": "Sertifikat Program Leadership Development 2026",
-        "html": f"""
-        <p>Halo <b>{nama}</b>,</p>
-        <p>Terimakasih, telah berpartisipasi dalam Program Leadership Development Malang 2026.</p>
-        <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
-        <p><b>Hash SHA-256 PDF:</b></p>
-        <p style="background:#f4f4f4; padding:10px; font-family:monospace;">{hash_pdf}</p>
-        <p>Untuk memverifikasi keaslian sertifikat Anda, kunjungi link berikut:<br>
-        <a href="{verifikasi_url}">{verifikasi_url}</a></p>
-        <p>Upload file PDF sertifikat Anda, sistem akan mengecek keasliannya secara otomatis.</p>
-        <p>Salam,<br>Panitia Program Leadership Development 2026</p>
-        """,
-        "attachments": [
-            {
-                "filename": f"Sertifikat_PLD_2026_{nama}.pdf",
-                "content": list(pdf_data),
-            },
-            {
-                "filename": "qr_hash.png",
-                "content": list(qr_data),
-            }
-        ]
-    }
-
-    resend.Emails.send(params)
+    msg = Message(
+        subject='Sertifikat Program Leadership Development 2026',
+        sender=application.config['MAIL_USERNAME'],
+        recipients=[email]
+    )
+    msg.html = f"""
+    <p>Halo <b>{nama}</b>,</p>
+    <p>Terimakasih, telah berpartisipasi dalam Program Leadership Development Malang 2026.</p>
+    <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
+    <p><b>Hash SHA-256 PDF:</b></p>
+    <p style="background:#f4f4f4; padding:10px; font-family:monospace;">{hash_pdf}</p>
+    <p>Untuk memverifikasi keaslian sertifikat Anda, kunjungi link berikut:<br>
+    <a href="{verifikasi_url}">{verifikasi_url}</a></p>
+    <p>Upload file PDF sertifikat Anda, sistem akan mengecek keasliannya secara otomatis.</p>
+    <p>Salam,<br>Panitia Program Leadership Development 2026</p>
+    """
+    with open(path_pdf, "rb") as f:
+        msg.attach(
+            f"Sertifikat_PLD_2026_{nama}.pdf",
+            "application/pdf",
+            f.read()
+        )
+    with open(path_qr, "rb") as f:
+        msg.attach(
+            "qr_hash.png",
+            "image/png",
+            f.read()
+        )
+    mail.send(msg)
 
 @application.route('/login', methods=['GET', 'POST'])
 def login():
