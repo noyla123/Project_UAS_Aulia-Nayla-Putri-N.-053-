@@ -5,22 +5,10 @@ import hashlib
 import qrcode
 import os
 import json
+import resend
 
 application = Flask(__name__)
 application.secret_key = 'pld2026rahasia'
-
-import os
-
-application.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
-application.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
-application.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() == 'true'
-application.config['MAIL_USE_SSL'] = False
-application.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-application.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-application.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
-application.config['MAIL_TIMEOUT'] = 30
-
-mail = Mail(application)
 
 def buat_sertifikat(nama):
     # 1. Buat sertifikat PNG dengan nama
@@ -61,35 +49,39 @@ def buat_sertifikat(nama):
     return path_png, path_pdf, hash_pdf, path_qr
 
 def kirim_email(nama, email, path_pdf, hash_pdf, path_qr):
-    msg = Message(
-        subject='Sertifikat Program Leadership Development 2026',
-        sender=application.config['MAIL_USERNAME'],
-        recipients=[email]
-    )
-    msg.html = f"""
-    <p>Halo <b>{nama}</b>,</p>
-    <p>Terimakasih, telah berpartisipasi dalam Program Leadership Development Malang 2026.</p>
-    <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
-    <p><b>Hash SHA-256 PDF:</b></p>
-    <p style="background:#f4f4f4; padding:10px; font-family:monospace;">{hash_pdf}</p>
-    <p><b>QR Code Hash:</b></p>
-    <img src="cid:qr_image" width="200" height="200"/>
-    <p>Salam,<br>Panitia Program Leadership Development 2026</p>
-    """
     with open(path_pdf, "rb") as f:
-        msg.attach(
-            f"Sertifikat_PLD_2026_{nama}.pdf",
-            "application/pdf",
-            f.read()
-        )
+        pdf_data = f.read()
+
     with open(path_qr, "rb") as f:
-        msg.attach(
-            "qr_hash.png",
-            "image/png",
-            f.read(),
-            headers={"Content-ID": "<qr_image>", "Content-Disposition": "inline"}
-        )
-    mail.send(msg)
+        qr_data = f.read()
+
+    resend.api_key = os.environ.get('RESEND_API_KEY')
+
+    params = {
+        "from": os.environ.get('MAIL_FROM', 'onboarding@resend.dev'),
+        "to": [email],
+        "subject": "Sertifikat Program Leadership Development 2026",
+        "html": f"""
+        <p>Halo <b>{nama}</b>,</p>
+        <p>Terimakasih, telah berpartisipasi dalam Program Leadership Development Malang 2026.</p>
+        <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
+        <p><b>Hash SHA-256 PDF:</b></p>
+        <p style="background:#f4f4f4; padding:10px; font-family:monospace;">{hash_pdf}</p>
+        <p>Salam,<br>Panitia Program Leadership Development 2026</p>
+        """,
+        "attachments": [
+            {
+                "filename": f"Sertifikat_PLD_2026_{nama}.pdf",
+                "content": list(pdf_data),
+            },
+            {
+                "filename": "qr_hash.png",
+                "content": list(qr_data),
+            }
+        ]
+    }
+
+    resend.Emails.send(params)
 
 @application.route('/', methods=['GET', 'POST'])
 def index():
