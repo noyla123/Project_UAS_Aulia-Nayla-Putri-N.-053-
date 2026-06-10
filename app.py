@@ -1,29 +1,51 @@
-from flask import Flask, render_template, request, send_from_directory, session
+from flask import Flask, render_template, request, send_from_directory, session, redirect, url_for
 from flask_mail import Mail, Message
 from PIL import Image, ImageDraw, ImageFont
 from reportlab.pdfgen import canvas
 import hashlib
 import qrcode
 import os
+import json
+import resend
+from functools import wraps
 
 application = Flask(__name__)
 application.secret_key = 'pld2026rahasia'
 
-application.config['MAIL_SERVER'] = 'smtp.gmail.com'
-application.config['MAIL_PORT'] = 587
-application.config['MAIL_USE_TLS'] = True
-application.config['MAIL_USE_SSL'] = False
-application.config['MAIL_USERNAME'] = 'aestetoqnoyla@gmail.com'
-application.config['MAIL_PASSWORD'] = 'qtrswmjdcusxlkyf'
-application.config['MAIL_DEFAULT_SENDER'] = 'aestetoqnoyla@gmail.com'
-application.config['MAIL_TIMEOUT'] = 30
+# Kredensial admin
+ADMIN_USERNAME = 'admin'
+ADMIN_PASSWORD = 'pld2026'
 
-mail = Mail(application)
+# File penyimpanan hash
+HASH_FILE = 'data/hashes.json'
 
-mail = Mail(application)
+def simpan_hash(nama, hash_pdf):
+    os.makedirs('data', exist_ok=True)
+    if os.path.exists(HASH_FILE):
+        with open(HASH_FILE, 'r') as f:
+            data = json.load(f)
+    else:
+        data = {}
+    data[hash_pdf] = nama
+    with open(HASH_FILE, 'w') as f:
+        json.dump(data, f)
+
+def cek_hash(hash_pdf):
+    if not os.path.exists(HASH_FILE):
+        return None
+    with open(HASH_FILE, 'r') as f:
+        data = json.load(f)
+    return data.get(hash_pdf)
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 def buat_sertifikat(nama):
-    # 1. Buat sertifikat PNG dengan nama
     gambar = Image.open("static/sertif.png")
     draw = ImageDraw.Draw(gambar)
     font = ImageFont.truetype("fonts/ITCEDSCR.TTF", 300)
@@ -37,7 +59,6 @@ def buat_sertifikat(nama):
     path_png = f"static/sertifikat_{nama_file}.png"
     gambar.save(path_png)
 
-    # 2. Buat PDF
     img = Image.open(path_png)
     lebar, tinggi = img.size
     os.makedirs("pdf", exist_ok=True)
@@ -47,49 +68,78 @@ def buat_sertifikat(nama):
     c.drawImage(path_png, 0, 0, width=lebar, height=tinggi)
     c.save()
 
-    # 3. Hitung hash
     with open(path_pdf, "rb") as f:
         isi_pdf = f.read()
     hash_pdf = hashlib.sha256(isi_pdf).hexdigest()
 
-    # 4. Buat QR
     os.makedirs("static/qr", exist_ok=True)
     path_qr = f"static/qr/qr_{nama_file}.png"
     qr = qrcode.make(hash_pdf)
     qr.save(path_qr)
 
+    simpan_hash(nama, hash_pdf)
+
     return path_png, path_pdf, hash_pdf, path_qr
 
 def kirim_email(nama, email, path_pdf, hash_pdf, path_qr):
-    msg = Message(
-        subject='Sertifikat Program Leadership Development 2026',
-        sender=application.config['MAIL_USERNAME'],
-        recipients=[email]
-    )
-    msg.html = f"""
-    <p>Halo <b>{nama}</b>,</p>
-    <p>Terimakasih, telah berpartisipasi dalam Program Leadership Development Malang 2026.</p>
-    <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
-    <p><b>QR Code Sertifikat:</b></p>
-    <img src="cid:qr_image" width="200" height="200"/>
-    <p>Salam,<br>Panitia Program Leadership Development 2026</p>
-    """
     with open(path_pdf, "rb") as f:
-        msg.attach(
-            f"Sertifikat_PLD_2026_{nama}.pdf",
-            "application/pdf",
-            f.read()
-        )
+        pdf_data = f.read()
+
     with open(path_qr, "rb") as f:
-        msg.attach(
-            "qr_hash.png",
-            "image/png",
-            f.read(),
-            headers={"Content-ID": "<qr_image>", "Content-Disposition": "inline"}
-        )
-    mail.send(msg)
+        qr_data = f.read()
+
+    resend.api_key = os.environ.get('RESEND_API_KEY')
+    verifikasi_url = os.environ.get('APP_URL', 'http://localhost:5000') + '/verifikasi'
+
+    params = {
+        "from": os.environ.get('MAIL_FROM', 'onboarding@resend.dev'),
+        "to": [os.environ.get('ADMIN_EMAIL', email)],
+        "subject": "Sertifikat Program Leadership Development 2026",
+        "html": f"""
+        <p>Halo <b>{nama}</b>,</p>
+        <p>Terimakasih, telah berpartisipasi dalam Program Leadership Development Malang 2026.</p>
+        <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
+        <p><b>Hash SHA-256 PDF:</b></p>
+        <p style="background:#f4f4f4; padding:10px; font-family:monospace;">{hash_pdf}</p>
+        <p>Untuk memverifikasi keaslian sertifikat Anda, kunjungi link berikut:<br>
+        <a href="{verifikasi_url}">{verifikasi_url}</a></p>
+        <p>Upload file PDF sertifikat Anda, sistem akan mengecek keasliannya secara otomatis.</p>
+        <p>Salam,<br>Panitia Program Leadership Development 2026</p>
+        """,
+        "attachments": [
+            {
+                "filename": f"Sertifikat_PLD_2026_{nama}.pdf",
+                "content": list(pdf_data),
+            },
+            {
+                "filename": "qr_hash.png",
+                "content": list(qr_data),
+            }
+        ]
+    }
+
+    resend.Emails.send(params)
+
+@application.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        else:
+            error = 'Username atau password salah!'
+    return render_template('login.html', error=error)
+
+@application.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 @application.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     if request.method == 'POST':
         nama_list = request.form.getlist('nama[]')
@@ -126,6 +176,7 @@ def index():
     return render_template('form.html')
 
 @application.route('/kirim', methods=['POST'])
+@login_required
 def kirim():
     hasil = session.get('hasil', [])
     laporan = []
@@ -147,6 +198,22 @@ def kirim():
             laporan.append({**p, 'status': 'Gagal ❌ (sertifikat tidak dibuat)'})
 
     return render_template('response.html', hasil=laporan, sudah_kirim=True)
+
+@application.route('/verifikasi', methods=['GET', 'POST'])
+def verifikasi():
+    hasil = None
+    nama_peserta = None
+    if request.method == 'POST':
+        file = request.files.get('pdf_file')
+        if file:
+            isi_pdf = file.read()
+            hash_pdf = hashlib.sha256(isi_pdf).hexdigest()
+            nama_peserta = cek_hash(hash_pdf)
+            if nama_peserta:
+                hasil = 'asli'
+            else:
+                hasil = 'palsu'
+    return render_template('verifikasi.html', hasil=hasil, nama=nama_peserta)
 
 @application.route('/pdf/<filename>')
 def download_pdf(filename):
