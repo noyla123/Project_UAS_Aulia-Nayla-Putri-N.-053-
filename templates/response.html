@@ -20,6 +20,28 @@
             margin: 0 auto;
         }
 
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .btn-logout {
+            padding: 7px 16px;
+            background: rgba(255,255,255,0.5);
+            border: 1.5px solid #d4537e;
+            border-radius: 8px;
+            color: #99355a;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover { background: rgba(255,255,255,0.8); }
+
         h1 {
             font-family: 'Cormorant Garamond', serif;
             font-size: 30px;
@@ -65,23 +87,14 @@
             text-align: left;
         }
 
-        tbody tr {
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-
-        tbody tr:hover {
-            background: rgba(255,255,255,0.1);
-        }
+        tbody tr { border-bottom: 1px solid rgba(255,255,255,0.2); }
+        tbody tr:hover { background: rgba(255,255,255,0.1); }
 
         tbody td {
             padding: 12px 10px;
             font-size: 13px;
             color: #5a1030;
             vertical-align: middle;
-        }
-
-        tbody td.light {
-            color: rgba(255,255,255,0.9);
         }
 
         .sertif-thumb {
@@ -143,11 +156,6 @@
             gap: 12px;
         }
 
-        .info-text {
-            font-size: 13px;
-            color: rgba(255,255,255,0.8);
-        }
-
         .btn-kirim {
             padding: 14px 40px;
             background: #f4b8cc;
@@ -166,9 +174,9 @@
 
         .btn-kembali {
             padding: 14px 30px;
-            background: transparent;
-            color: #fff;
-            border: 1.5px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.6);
+            color: #99355a;
+            border: 1.5px solid #d4537e;
             border-radius: 10px;
             font-size: 14px;
             font-weight: 500;
@@ -178,7 +186,7 @@
             transition: background 0.2s;
         }
 
-        .btn-kembali:hover { background: rgba(255,255,255,0.1); }
+        .btn-kembali:hover { background: rgba(255,255,255,0.8); }
 
         .notif {
             background: rgba(100,200,100,0.25);
@@ -194,6 +202,10 @@
 </head>
 <body>
     <div class="container">
+        <div class="top-bar">
+            <a href="/logout" class="btn-logout">🚪 Logout</a>
+        </div>
+
         <h1>Hasil Sertifikat Program Leadership Development 2026</h1>
         <p class="subtitle">{{ hasil|length }} peserta diproses</p>
 
