@@ -29,6 +29,28 @@
             border: 1px solid rgba(255, 255, 255, 0.35);
         }
 
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .btn-logout {
+            padding: 7px 16px;
+            background: rgba(255,255,255,0.5);
+            border: 1.5px solid #d4537e;
+            border-radius: 8px;
+            color: #99355a;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover { background: rgba(255,255,255,0.8); }
+
         h1 {
             font-family: 'Cormorant Garamond', serif;
             font-size: 30px;
@@ -62,9 +84,7 @@
             text-align: left;
         }
 
-        tbody td {
-            padding: 8px 6px;
-        }
+        tbody td { padding: 8px 6px; }
 
         tbody td input {
             background: rgba(255,255,255,0.75);
@@ -82,9 +102,7 @@
             background: #ffffff;
         }
 
-        tbody td input::placeholder {
-            color: #e8a0b8;
-        }
+        tbody td input::placeholder { color: #e8a0b8; }
 
         .btn-hapus {
             background: rgba(255,100,130,0.3);
@@ -97,9 +115,7 @@
             transition: background 0.2s;
         }
 
-        .btn-hapus:hover {
-            background: rgba(255,100,130,0.5);
-        }
+        .btn-hapus:hover { background: rgba(255,100,130,0.5); }
 
         .btn-tambah {
             width: 100%;
@@ -116,9 +132,7 @@
             letter-spacing: 0.5px;
         }
 
-        .btn-tambah:hover {
-            background: #fff;
-        }
+        .btn-tambah:hover { background: #fff; }
 
         .btn-submit {
             width: 100%;
@@ -132,7 +146,7 @@
             cursor: pointer;
             font-family: 'Inter', sans-serif;
             letter-spacing: 0.5px;
-            transition: background 0 s;
+            transition: background 0.2s;
         }
 
         .btn-submit:hover { background: #d4537e; }
@@ -147,6 +161,10 @@
 </head>
 <body>
     <div class="card">
+        <div class="top-bar">
+            <a href="/logout" class="btn-logout">🚪 Logout</a>
+        </div>
+
         <h1>Sertifikat Program Leadership Development 2026</h1>
         <p class="subtitle">Masukkan data peserta dan submit data dibawah ini!</p>
 
@@ -188,7 +206,6 @@
         function tambahBaris() {
             const tbody = document.getElementById('tabel-peserta');
             const jumlah = tbody.rows.length + 1;
-
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="color:#99355a; font-size:13px; padding:8px 6px; text-align:center;">${jumlah}</td>
@@ -209,12 +226,9 @@
 
         function updateNomor() {
             const rows = document.querySelectorAll('#tabel-peserta tr');
-            rows.forEach((row, i) => {
-                row.cells[0].textContent = i + 1;
-            });
+            rows.forEach((row, i) => { row.cells[0].textContent = i + 1; });
             const jumlah = rows.length;
-            document.getElementById('jumlah-peserta').textContent =
-                jumlah + (jumlah === 1 ? ' peserta' : ' peserta');
+            document.getElementById('jumlah-peserta').textContent = jumlah + ' peserta';
         }
     </script>
 </body>
