@@ -107,7 +107,9 @@ def kirim_email(nama, email, path_pdf, hash_pdf, path_qr):
     <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
     <p><b>Hash SHA-256 PDF:</b></p>
     <p style="background:#f4f4f4; padding:10px; font-family:monospace;">{hash_pdf}</p>
-    <p>Untuk memverifikasi keaslian sertifikat Anda, kunjungi link berikut:<br>
+    <p><b>QR Code Hash:</b></p>
+    <img src="cid:qr_image" width="180" height="180"/>
+    <p style="margin-top:16px;">Untuk memverifikasi keaslian sertifikat Anda, kunjungi link berikut:<br>
     <a href="{verifikasi_url}">{verifikasi_url}</a></p>
     <p>Upload file PDF sertifikat Anda, sistem akan mengecek keasliannya secara otomatis.</p>
     <p>Salam,<br>Panitia Program Leadership Development 2026</p>
@@ -122,7 +124,8 @@ def kirim_email(nama, email, path_pdf, hash_pdf, path_qr):
         msg.attach(
             "qr_hash.png",
             "image/png",
-            f.read()
+            f.read(),
+            headers={"Content-ID": "<qr_image>", "Content-Disposition": "inline"}
         )
     mail.send(msg)
 
