@@ -70,6 +70,8 @@ def kirim_email(nama, email, path_pdf, hash_pdf, path_qr):
     <p>Halo <b>{nama}</b>,</p>
     <p>Terimakasih, telah berpartisipasi dalam Program Leadership Development Malang 2026.</p>
     <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
+    <p><b>QR Code Sertifikat:</b></p>
+    <img src="cid:qr_image" width="200" height="200"/>
     <p>Salam,<br>Panitia Program Leadership Development 2026</p>
     """
     with open(path_pdf, "rb") as f:
