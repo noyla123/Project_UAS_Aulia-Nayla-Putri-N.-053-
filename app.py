@@ -1,4 +1,3 @@
-from flask_mail import Mail, Message
 from flask import Flask, render_template, request, send_from_directory, session
 from PIL import Image, ImageDraw, ImageFont
 from reportlab.pdfgen import canvas
