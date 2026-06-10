@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Admin - PLD 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background-image: url('/static/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            padding: 40px 20px;
+        }
+
+        .card {
+            background: rgba(255, 230, 240, 0.22);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 18px;
+            padding: 44px 40px;
+            width: 100%;
+            max-width: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            color: #7a1a40;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 12.5px;
+            color: #99355a;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #99355a;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input {
+            width: 100%;
+            background: rgba(255,255,255,0.75);
+            border: 1.5px solid #f4b8cc;
+            color: #7a1a40;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            padding: 10px 12px;
+            border-radius: 8px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input:focus {
+            border-color: rgba(255,255,255,0.8);
+            background: #ffffff;
+        }
+
+        input::placeholder { color: #e8a0b8; }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #99355a);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover { background: #d4537e; }
+
+        .error {
+            background: rgba(255,100,100,0.2);
+            border: 1px solid rgba(255,100,100,0.4);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #7a1a40;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .icon { font-size: 36px; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">🔐</div>
+        <h1>Login Admin</h1>
+        <p class="subtitle">Program Leadership Development 2026</p>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Masukkan username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Masukkan password" required>
+            </div>
+            <button type="submit" class="btn-submit">Masuk</button>
+        </form>
+    </div>
+</body>
+</html>
