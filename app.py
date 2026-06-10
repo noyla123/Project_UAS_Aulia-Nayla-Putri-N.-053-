@@ -11,8 +11,6 @@ from functools import wraps
 application = Flask(__name__)
 application.secret_key = 'pld2026rahasia'
 application.config['SESSION_PERMANENT'] = False
-application.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-application.config['SESSION_COOKIE_SECURE'] = True
 
 # Kredensial admin
 ADMIN_USERNAME = 'admin'
@@ -55,6 +53,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
+            session.clear()
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
