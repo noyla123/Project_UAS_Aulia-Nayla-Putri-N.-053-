@@ -105,8 +105,6 @@ def kirim_email(nama, email, path_pdf, hash_pdf, path_qr):
     <p>Halo <b>{nama}</b>,</p>
     <p>Terimakasih, telah berpartisipasi dalam Program Leadership Development Malang 2026.</p>
     <p>Berikut terlampir sertifikat anda dalam format PDF.</p>
-    <p><b>Hash SHA-256 PDF:</b></p>
-    <p style="background:#f4f4f4; padding:10px; font-family:monospace;">{hash_pdf}</p>
     <p><b>QR Code Hash:</b></p>
     <img src="cid:qr_image" width="180" height="180"/>
     <p style="margin-top:16px;">Untuk memverifikasi keaslian sertifikat Anda, kunjungi link berikut:<br>
