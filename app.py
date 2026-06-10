@@ -10,6 +10,9 @@ from functools import wraps
 
 application = Flask(__name__)
 application.secret_key = 'pld2026rahasia'
+application.config['SESSION_PERMANENT'] = False
+application.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+application.config['SESSION_COOKIE_SECURE'] = True
 
 # Kredensial admin
 ADMIN_USERNAME = 'admin'
@@ -140,6 +143,7 @@ def login():
 @application.route('/logout')
 def logout():
     session.clear()
+    session.modified = True
     return redirect(url_for('login'))
 
 @application.route('/', methods=['GET', 'POST'])
